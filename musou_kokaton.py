@@ -253,8 +253,7 @@ class Score:
 
 class Gravity(pg.sprite.Sprite):
     """
-    追加機能２：画面全体を覆う重力場に関するクラス
-    発動時間（life）の間、範囲内の敵機と爆弾を消滅させる
+    追加機能１：こうかとんの残機数（ライフ）を表示・管理するクラス
     """
     def __init__(self, life: int):
         super().__init__()
@@ -264,13 +263,15 @@ class Gravity(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.life = life
 
-    def update(self):
-        """
-        発動時間を1ずつ減算し、0未満になったら消滅（kill）する
-        """
-        self.life -= 1
-        if self.life < 0:
-            self.kill()
+    def update(self, screen: pg.Surface):
+        # 残機数（self.num）の分だけハートを並べて描画する
+        for i in range(self.num):
+            # 最右ハートの重心（中心）が下から50，右から50の位置
+            # 40x40のSurfaceの中心を(WIDTH-50, HEIGHT-50)にするため、左上座標は(WIDTH-70, HEIGHT-70)
+            # i番目のハートは左に並べるため、x座標から i * 40 を引く
+            x = (WIDTH - 70) - i * 40
+            y = HEIGHT - 70
+            screen.blit(self.image, (x, y))
 
 
 class Emp(pg.sprite.Sprite):
@@ -345,6 +346,8 @@ def main():
     bg_img = pg.image.load(f"fig/pg_bg.jpg")
     score = Score()
     life = Life(3)  # ライフを初期値3で生成
+
+    life = Life(3)
 
     bird = Bird(3, (900, 400))
     bombs = pg.sprite.Group()
@@ -438,8 +441,6 @@ def main():
         bird.update(key_lst, screen)
         beams.update()
         beams.draw(screen)
-        gravities.update()
-        gravities.draw(screen)
         emys.update()
         emys.draw(screen)
         bombs.update()
